@@ -1,0 +1,15 @@
+[package]
+name = "json-lua"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+ljr = { git = "https://github.com/carabalonepaulo/ljr", branch = "main", default-features = false }
+
+[features]
+default = ["dynamic"]
+dynamic = ["ljr/dynamic"]
+static = ["ljr/static"]
