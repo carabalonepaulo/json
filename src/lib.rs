@@ -1,14 +1,25 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+mod error;
+mod json;
+
+use std::collections::HashSet;
+
+use error::Error;
+use ljr::prelude::*;
+
+#[derive(Debug)]
+pub struct Api {}
+
+#[user_data]
+impl Api {
+    pub fn stringify(value: &StackValue) -> Result<String, Error> {
+        let mut visited = HashSet::new();
+        let mut buf = String::new();
+        json::serialize_value(&mut buf, value, &mut visited)?;
+        Ok(buf)
+    }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+#[ljr::module]
+pub fn json(_lua: &Lua) -> Api {
+    Api {}
 }

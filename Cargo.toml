@@ -7,7 +7,9 @@ edition = "2024"
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]
+json-escape = "0.3.1"
 ljr = { git = "https://github.com/carabalonepaulo/ljr", branch = "main", default-features = false }
+thiserror = "2.0.17"
 
 [features]
 default = ["dynamic"]
