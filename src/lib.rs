@@ -23,12 +23,10 @@ impl Api {
         let mut buf = text.as_bytes().to_vec();
         let value = simd_json::borrowed::to_value(&mut buf)?;
 
-        let table = lua.try_create_table_ex(0, 0, |t| {
-            de::insert_value(t, "value", &value)?;
-            Ok(())
-        })?;
+        let mut table = lua.try_create_table()?;
+        table.try_with_mut(|view| de::insert_value(view, 1, &value))??;
 
-        Ok(table.try_with(|t| t.try_get("value"))??)
+        Ok(table.try_with(|t| t.try_get(1))??)
     }
 }
 
