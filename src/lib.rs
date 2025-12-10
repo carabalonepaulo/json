@@ -24,9 +24,9 @@ impl Api {
         let value = simd_json::borrowed::to_value(&mut buf)?;
 
         let mut table = lua.try_create_table()?;
-        table.try_with_mut(|view| de::insert_value(view, 1, &value))??;
+        table.try_with_mut(|view| de::insert_value(view, None::<i32>, &value))??;
 
-        Ok(table.try_with(|t| t.try_get(1))??)
+        Ok(table)
     }
 }
 

@@ -12,6 +12,7 @@ ljr = { git = "https://github.com/carabalonepaulo/ljr", branch = "main", default
 thiserror = "2.0.17"
 ryu = "1.0.20"
 simd-json = "0.17.0"
+halfbrown = "0.4.0"
 
 [features]
 default = ["dynamic"]

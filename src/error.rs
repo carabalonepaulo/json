@@ -10,4 +10,6 @@ pub enum Error {
     Parse(#[from] simd_json::Error),
     #[error(transparent)]
     Ljr(#[from] ljr::error::Error),
+    #[error("int out of range")]
+    IntOutOfRange,
 }
