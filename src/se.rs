@@ -52,7 +52,17 @@ pub fn serialize_table(
     if len > 0 {
         serialize_array(buf, table, visited)
     } else {
-        serialize_object(buf, table, visited)
+        let is_array = table
+            .try_with(|t| t.try_with_metatable(|mt| mt.try_with(|t| t.try_get("__is_array"))?)?)
+            .flatten()
+            .unwrap_or(false);
+
+        if is_array {
+            buf.push_str("[]");
+            Ok(())
+        } else {
+            serialize_object(buf, table, visited)
+        }
     }
 }
 
