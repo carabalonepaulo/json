@@ -1,12 +1,13 @@
+mod de;
 mod error;
-mod json;
+mod se;
 
 use std::collections::HashSet;
 
 use error::Error;
 use ljr::prelude::*;
 
-thread_local! {}
+use crate::de::DeValue;
 
 #[derive(Debug)]
 pub struct Api {}
@@ -16,8 +17,12 @@ impl Api {
     pub fn stringify(value: &StackValue) -> Result<String, Error> {
         let mut buf = String::new();
         let mut visited = HashSet::new();
-        json::serialize_value(&mut buf, value, &mut visited)?;
+        se::serialize_value(&mut buf, value, &mut visited)?;
         Ok(buf)
+    }
+
+    pub fn parse(text: &str) -> Result<DeValue, Error> {
+        DeValue::new(text)
     }
 }
 

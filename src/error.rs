@@ -6,4 +6,8 @@ pub enum Error {
     InvalidKey,
     #[error("unsupported type for json")]
     UnsupportedValue,
+    #[error(transparent)]
+    Parse(#[from] simd_json::Error),
+    #[error(transparent)]
+    Ljr(#[from] ljr::error::Error),
 }
