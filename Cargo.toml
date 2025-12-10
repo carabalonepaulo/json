@@ -8,8 +8,7 @@ crate-type = ["rlib", "cdylib"]
 
 [dependencies]
 json-escape = "0.3.1"
-# ljr = { git = "https://github.com/carabalonepaulo/ljr", branch = "main", default-features = false }
-ljr = { path = "../ljr", default-features = false }
+ljr = { git = "https://github.com/carabalonepaulo/ljr", branch = "main", default-features = false }
 thiserror = "2.0.17"
 ryu = "1.0.20"
 simd-json = "0.17.0"

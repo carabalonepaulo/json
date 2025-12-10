@@ -39,6 +39,7 @@ checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 [[package]]
 name = "codegen"
 version = "0.1.0"
+source = "git+https://github.com/carabalonepaulo/ljr?branch=main#576db801873c21202110e21eb4f9d7d0333901e3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -151,6 +152,7 @@ checksum = "df1d3c3b53da64cf5760482273a98e575c651a67eec7f77df96b5b642de8f039"
 [[package]]
 name = "ljr"
 version = "0.1.0"
+source = "git+https://github.com/carabalonepaulo/ljr?branch=main#576db801873c21202110e21eb4f9d7d0333901e3"
 dependencies = [
  "macros",
  "mlua-sys",
@@ -179,6 +181,7 @@ dependencies = [
 [[package]]
 name = "macros"
 version = "0.1.0"
+source = "git+https://github.com/carabalonepaulo/ljr?branch=main#576db801873c21202110e21eb4f9d7d0333901e3"
 dependencies = [
  "codegen",
 ]
