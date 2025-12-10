@@ -6,6 +6,8 @@ use std::collections::HashSet;
 use error::Error;
 use ljr::prelude::*;
 
+thread_local! {}
+
 #[derive(Debug)]
 pub struct Api {}
 
