@@ -7,6 +7,8 @@ use std::collections::HashSet;
 use error::Error;
 use ljr::prelude::*;
 
+use crate::de::try_to_value_ref;
+
 #[derive(Debug)]
 pub struct Api {}
 
@@ -19,14 +21,10 @@ impl Api {
         Ok(buf)
     }
 
-    pub fn parse(text: &str, lua: &mut Lua) -> Result<TableRef, Error> {
+    pub fn parse(text: &str, lua: &mut Lua) -> Result<ValueRef, Error> {
         let mut buf = text.as_bytes().to_vec();
         let value = simd_json::borrowed::to_value(&mut buf)?;
-
-        let mut table = lua.try_create_table()?;
-        table.try_with_mut(|view| de::insert_value(view, None::<i32>, &value))??;
-
-        Ok(table)
+        try_to_value_ref(lua, &value)
     }
 }
 
