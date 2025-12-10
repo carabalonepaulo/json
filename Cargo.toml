@@ -10,8 +10,14 @@ crate-type = ["rlib", "cdylib"]
 json-escape = "0.3.1"
 ljr = { git = "https://github.com/carabalonepaulo/ljr", branch = "main", default-features = false }
 thiserror = "2.0.17"
+ryu = "1.0.20"
 
 [features]
 default = ["dynamic"]
 dynamic = ["ljr/dynamic"]
 static = ["ljr/static"]
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = true

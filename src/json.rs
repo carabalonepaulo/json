@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+// use std::fmt::Write;
 
 use ljr::{prelude::*, value::Kind};
 
@@ -19,14 +20,20 @@ pub fn serialize_value(
             Ok(())
         }
         Kind::Number => {
-            value.with_number(|n| buf.push_str(n.to_string().as_str()));
+            // let _ = value.with_number(|n| write!(buf, "{}", n));
+            value.with_number(|n| {
+                let mut buffer = ryu::Buffer::new();
+                buf.push_str(buffer.format(n));
+            });
             Ok(())
         }
         Kind::String => {
             value.with_str(|s| {
                 buf.push('"');
-                let escaped = json_escape::escape_str(s.as_str()).collect::<String>();
-                buf.push_str(escaped.as_str());
+                let mut iter = json_escape::escape_str(s.as_str());
+                while let Some(c) = iter.next() {
+                    buf.push_str(c);
+                }
                 buf.push('"');
             });
             Ok(())
@@ -98,9 +105,11 @@ pub fn serialize_object(
         }
         first = false;
 
-        let escaped_key = json_escape::escape_str(k.as_str()).collect::<String>();
         buf.push('"');
-        buf.push_str(escaped_key.as_str());
+        let mut iter = json_escape::escape_str(k.as_str());
+        while let Some(c) = iter.next() {
+            buf.push_str(c);
+        }
         buf.push('"');
         buf.push(':');
         match serialize_value(buf, v, visited) {

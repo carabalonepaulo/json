@@ -12,8 +12,8 @@ pub struct Api {}
 #[user_data]
 impl Api {
     pub fn stringify(value: &StackValue) -> Result<String, Error> {
-        let mut visited = HashSet::new();
         let mut buf = String::new();
+        let mut visited = HashSet::new();
         json::serialize_value(&mut buf, value, &mut visited)?;
         Ok(buf)
     }
