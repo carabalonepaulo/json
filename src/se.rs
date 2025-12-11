@@ -1,6 +1,6 @@
 use ljr::{prelude::*, value::Kind};
 
-use crate::{MAX_SAFE_INT_AS_F64, error::Error};
+use crate::{MAX_SAFE_INT_AS_F64, check_depth, error::Error};
 
 pub fn serialize_value(buf: &mut String, value: &StackValue, depth: i32) -> Result<(), Error> {
     match value.kind() {
@@ -43,11 +43,7 @@ pub fn serialize_value(buf: &mut String, value: &StackValue, depth: i32) -> Resu
 }
 
 pub fn serialize_table(buf: &mut String, table: &StackTable, mut depth: i32) -> Result<(), Error> {
-    if depth <= 0 {
-        return Err(Error::MaxDepthExceeded);
-    }
-    depth -= 1;
-
+    depth = check_depth(depth)?;
     let len = table.len();
     if len > 0 {
         serialize_array(buf, table, depth)

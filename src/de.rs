@@ -1,27 +1,38 @@
 use std::borrow::Cow;
 
-use crate::{Error, MAX_SAFE_INT};
+use crate::{Error, MAX_SAFE_INT, check_depth};
 use halfbrown::SizedHashMap;
 use ljr::{Nil, lua::Lua, prelude::TableView, to_lua::ToLua, value::ValueRef};
 use simd_json::{BorrowedValue, StaticNode, borrowed::Value};
 
 #[inline(always)]
-fn push_vec(t: &mut TableView, vec: &Vec<Value<'_>>) -> Result<(), Error> {
+fn push_vec(t: &mut TableView, vec: &Vec<Value<'_>>, mut depth: i32) -> Result<(), Error> {
+    depth = check_depth(depth)?;
     for (i, v) in vec.iter().enumerate() {
-        insert_value(t, Some((i as i32) + 1), v)?;
+        insert_value(t, Some((i as i32) + 1), v, depth)?;
     }
     Ok(())
 }
 
 #[inline(always)]
-fn push_map(t: &mut TableView, map: &SizedHashMap<Cow<'_, str>, Value<'_>>) -> Result<(), Error> {
+fn push_map(
+    t: &mut TableView,
+    map: &SizedHashMap<Cow<'_, str>, Value<'_>>,
+    mut depth: i32,
+) -> Result<(), Error> {
+    depth = check_depth(depth)?;
     for (k, v) in map.iter() {
-        insert_value(t, Some(k.as_bytes()), v)?;
+        insert_value(t, Some(k.as_bytes()), v, depth)?;
     }
     Ok(())
 }
 
-fn insert_value(t: &mut TableView, key: impl ToLua, value: &Value) -> Result<(), Error> {
+fn insert_value(
+    t: &mut TableView,
+    key: impl ToLua,
+    value: &Value,
+    depth: i32,
+) -> Result<(), Error> {
     match value {
         BorrowedValue::Static(StaticNode::Null) => t.try_set(key, Nil)?,
         BorrowedValue::Static(StaticNode::Bool(v)) => t.try_set(key, v)?,
@@ -45,21 +56,21 @@ fn insert_value(t: &mut TableView, key: impl ToLua, value: &Value) -> Result<(),
             let len = vec.len();
             t.try_create_table_field(key, len as _, 0, |t| {
                 let t = &mut *t.as_mut();
-                push_vec(t, &**vec)
+                push_vec(t, &**vec, depth)
             })??;
         }
         BorrowedValue::Object(map) => {
             let len = map.len();
             t.try_create_table_field(key, 0, len as _, |t| {
                 let t = &mut *t.as_mut();
-                push_map(t, &**map)
+                push_map(t, &**map, depth)
             })??;
         }
     }
     Ok(())
 }
 
-pub fn try_to_value_ref(lua: &Lua, value: &Value) -> Result<ValueRef, Error> {
+pub fn try_to_value_ref(lua: &Lua, value: &Value, depth: i32) -> Result<ValueRef, Error> {
     match value {
         BorrowedValue::Static(StaticNode::Null) => Ok(lua.try_create_value_ref(Nil)?),
         BorrowedValue::Static(StaticNode::Bool(v)) => Ok(lua.try_create_value_ref(*v)?),
@@ -82,13 +93,13 @@ pub fn try_to_value_ref(lua: &Lua, value: &Value) -> Result<ValueRef, Error> {
         BorrowedValue::Array(vec) => {
             let len = vec.len();
             let mut table = lua.try_create_table_with_capacity(len as _, 0)?;
-            table.try_with_mut(|t| push_vec(t, &**vec))??;
+            table.try_with_mut(|t| push_vec(t, &**vec, depth))??;
             Ok(lua.try_create_value_ref(table)?)
         }
         BorrowedValue::Object(map) => {
             let len = map.len();
             let mut table = lua.try_create_table_with_capacity(0, len as _)?;
-            table.try_with_mut(|t| push_map(t, &**map))??;
+            table.try_with_mut(|t| push_map(t, &**map, depth))??;
             Ok(lua.try_create_value_ref(table)?)
         }
     }

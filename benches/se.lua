@@ -12,10 +12,30 @@ local function make_big_obj(n)
   return t
 end
 
-local function make_big_array(n)
+local function make_big_int_array(n)
   local t = {}
   for i = 1, n do
     t[i] = i * 2
+  end
+  return t
+end
+
+local function make_big_float_array(n)
+  local t = {}
+  for i = 1, n do
+    t[i] = i * 2 + 0.5
+  end
+  return t
+end
+
+local function make_big_mix_array(n)
+  local t = {}
+  for i = 1, n do
+    if i % 2 == 0 then
+      t[i] = i * 2
+    else
+      t[i] = i * 2 + 0.5
+    end
   end
   return t
 end
@@ -33,7 +53,9 @@ local growth = string.match(arg[1], '-g:(%d+)')
 local rep = string.match(arg[2], '-r:(%d+)')
 
 local dummy_obj = make_big_obj(growth)
-local dummy_array = make_big_array(growth)
+local dummy_int_array = make_big_int_array(growth)
+local dummy_float_array = make_big_float_array(growth)
+local dummy_mix_array = make_big_mix_array(growth)
 local dummy_empty = make_big_array_with_empty_tables(growth)
 
 local rxi_json = require 'benches.rxi'
@@ -61,21 +83,57 @@ bench.compare('object', {
   end
 }, rep)
 
-bench.compare('array', {
+bench.compare('array (int)', {
   rxi = function()
-    rxi_json.encode(dummy_array)
+    rxi_json.encode(dummy_int_array)
   end,
   dkjson = function()
-    dkjson.encode(dummy_array)
+    dkjson.encode(dummy_int_array)
   end,
   tyler = function()
-    tyler_json.stringify(dummy_array)
+    tyler_json.stringify(dummy_int_array)
   end,
   mine = function()
-    mine_json.stringify(dummy_array)
+    mine_json.stringify(dummy_int_array)
   end,
   cjson = function()
-    cjson.encode(dummy_array)
+    cjson.encode(dummy_int_array)
+  end
+}, rep)
+
+bench.compare('array (float)', {
+  rxi = function()
+    rxi_json.encode(dummy_float_array)
+  end,
+  dkjson = function()
+    dkjson.encode(dummy_float_array)
+  end,
+  tyler = function()
+    tyler_json.stringify(dummy_float_array)
+  end,
+  mine = function()
+    mine_json.stringify(dummy_float_array)
+  end,
+  cjson = function()
+    cjson.encode(dummy_float_array)
+  end
+}, rep)
+
+bench.compare('array (mix)', {
+  rxi = function()
+    rxi_json.encode(dummy_mix_array)
+  end,
+  dkjson = function()
+    dkjson.encode(dummy_mix_array)
+  end,
+  tyler = function()
+    tyler_json.stringify(dummy_mix_array)
+  end,
+  mine = function()
+    mine_json.stringify(dummy_mix_array)
+  end,
+  cjson = function()
+    cjson.encode(dummy_mix_array)
   end
 }, rep)
 

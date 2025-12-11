@@ -60,23 +60,40 @@ Environment:
 Serialization tests measure the throughput of converting Lua tables to JSON
 strings. Higher is better.
 
-| Scenario   | json         | cjson        | rxi    | dkjson   | tyler    |
-| :--------- | :----------- | :----------- | :----- | :------- | :------- |
-| **Array**  | **1,623.38** | 601.68       | 771.60 | 486.38   | 1,300.39 |
-| **Object** | **1,291.99** | 931.10       | 262.88 | 183.96   | 53.95    |
-| **Empty**  | 1,834.86     | **2,325.58** | 690.13 | 1,275.51 | 518.94   |
+`luajit .\benches\se.lua -g:10000 -r:1000`
+
+| Scenario          | mine        | cjson       | rxi     | dkjson  | tyler   |
+| :---------------- | :---------- | :---------- | :------ | :------ | :------ |
+| **Array (int)**   | **3921.57** | 603.86      | 1848.43 | 518.94  | 1331.56 |
+| **Array (float)** | **1655.63** | 257.33      | 1644.74 | 407.66  | 1135.07 |
+| **Array (mix)**   | **2364.07** | 362.06      | 1506.02 | 441.50  | 849.62  |
+| **Object**        | **1658.37** | 959.69      | 274.88  | 197.71  | 58.73   |
+| **Empty**         | 1492.54     | **2369.67** | 713.27  | 1253.13 | 532.20  |
 
 ### Deserialization (ops/sec)
 
 Deserialization tests measure parsing JSON strings into Lua tables. Higher is
 better.
 
-| Scenario   | json     | cjson    | rxi      | dkjson | tyler  |
-| :--------- | :------- | :------- | :------- | :----- | :----- |
-| **Decode** | 6,250.00 | 4,056.80 | 2,132.65 | 787.34 | 175.25 |
+`luajit .\benches\de.lua -g:1000 -r:1000 -d:50`
 
-Observation: Leveraging simd-json allows for ~54% higher throughput compared to
-cjson's state machine parser.
+| Scenario             | mine         | cjson         | rxi      |
+| :------------------- | :----------- | :------------ | :------- |
+| **Array (int)**      | 12345.68     | **12820.51**  | 6944.44  |
+| **Array (float)**    | **17543.86** | 3663.00       | 3521.13  |
+| **Array (mix 1)**    | **22222.22** | 5882.35       | 6172.84  |
+| **Array (objects)**  | 2380.95      | 2380.95       | 1020.41  |
+| **Array (arrays)**   | **3846.15**  | 2801.12       | 1377.41  |
+| **Array (mix 2)**    | **25000.00** | 12987.01      | 5882.35  |
+| **Object (int)**     | **10416.67** | 7812.50       | 3355.70  |
+| **Object (float)**   | **10526.32** | 3076.92       | 2777.78  |
+| **Object (mix)**     | **12658.23** | 8849.56       | 3937.01  |
+| **Object (nested)**  | 90909.09     | **166666.67** | 71428.57 |
+| **Object (arrays)**  | **398.88**   | 218.44        | 136.54   |
+| **Object (objects)** | **2518.89**  | 3067.48       | 1196.17  |
+| **Object (strings)** | **7751.94**  | 5813.95       | 3424.66  |
+| **Object (empty)**   | 5405.41      | **11111.11**  | 3030.30  |
+| **Object (heavy)**   | **740.19**   | 706.71        | 303.31   |
 
 ## Installation
 
