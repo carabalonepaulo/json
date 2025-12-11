@@ -50,18 +50,20 @@ pub fn serialize_array(buf: &mut String, table: &StackTable, depth: i32) -> Resu
     buf.push('[');
 
     let mut err: Option<Error> = None;
-    table.for_each(|i: &i32, v: &StackValue| {
-        if *i > 1 {
-            buf.push(',');
-        }
-        match serialize_value(buf, v, depth) {
-            Ok(_) => true,
-            Err(e) => {
+    table.try_with(|t| {
+        t.try_for_each_indexed(|i: i32, v: &StackValue| {
+            if i > 1 {
+                buf.push(',');
+            }
+
+            if let Err(e) = serialize_value(buf, v, depth) {
                 err = Some(e);
                 false
+            } else {
+                true
             }
-        }
-    });
+        })
+    })??;
 
     if let Some(err) = err {
         return Err(err);

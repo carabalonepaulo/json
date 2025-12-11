@@ -28,18 +28,14 @@ fn insert_value(t: &mut TableView, key: impl ToLua, value: &Value) -> Result<(),
         BorrowedValue::Static(StaticNode::Null) => t.try_set(key, Nil)?,
         BorrowedValue::Static(StaticNode::Bool(v)) => t.try_set(key, v)?,
         BorrowedValue::Static(StaticNode::I64(v)) => {
-            if let Ok(value) = i32::try_from(*v) {
-                t.try_set(key, value)?
-            } else if *v >= -MAX_SAFE_INT && *v <= MAX_SAFE_INT {
+            if *v >= -MAX_SAFE_INT && *v <= MAX_SAFE_INT {
                 t.try_set(key, *v as f64)?
             } else {
                 return Err(Error::IntOutOfRange);
             }
         }
         BorrowedValue::Static(StaticNode::U64(v)) => {
-            if let Ok(value) = i32::try_from(*v) {
-                t.try_set(key, value)?
-            } else if *v < (MAX_SAFE_INT as u64) {
+            if *v < (MAX_SAFE_INT as u64) {
                 t.try_set(key, *v as f64)?
             } else {
                 return Err(Error::IntOutOfRange);
@@ -49,14 +45,14 @@ fn insert_value(t: &mut TableView, key: impl ToLua, value: &Value) -> Result<(),
         BorrowedValue::String(s) => t.try_set(key, s.as_bytes())?,
         BorrowedValue::Array(vec) => {
             let len = vec.len();
-            t.try_add_table(key, len as _, 0, |t| {
+            t.try_create_table_field(key, len as _, 0, |t| {
                 let t = &mut *t.as_mut();
                 push_vec(t, &**vec)
             })??;
         }
         BorrowedValue::Object(map) => {
             let len = map.len();
-            t.try_add_table(key, 0, len as _, |t| {
+            t.try_create_table_field(key, 0, len as _, |t| {
                 let t = &mut *t.as_mut();
                 push_map(t, &**map)
             })??;
@@ -70,18 +66,14 @@ pub fn try_to_value_ref(lua: &Lua, value: &Value) -> Result<ValueRef, Error> {
         BorrowedValue::Static(StaticNode::Null) => Ok(lua.try_create_value_ref(Nil)?),
         BorrowedValue::Static(StaticNode::Bool(v)) => Ok(lua.try_create_value_ref(*v)?),
         BorrowedValue::Static(StaticNode::I64(v)) => {
-            if let Ok(value) = i32::try_from(*v) {
-                Ok(lua.try_create_value_ref(value)?)
-            } else if *v >= -MAX_SAFE_INT && *v <= MAX_SAFE_INT {
+            if *v >= -MAX_SAFE_INT && *v <= MAX_SAFE_INT {
                 Ok(lua.try_create_value_ref(*v as f64)?)
             } else {
                 Err(Error::IntOutOfRange)
             }
         }
         BorrowedValue::Static(StaticNode::U64(v)) => {
-            if let Ok(value) = i32::try_from(*v) {
-                Ok(lua.try_create_value_ref(value)?)
-            } else if *v < (MAX_SAFE_INT as u64) {
+            if *v < (MAX_SAFE_INT as u64) {
                 Ok(lua.try_create_value_ref(*v as f64)?)
             } else {
                 Err(Error::IntOutOfRange)
