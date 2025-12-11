@@ -2,22 +2,28 @@ mod de;
 mod error;
 mod se;
 
-use std::collections::HashSet;
+use std::sync::atomic::{AtomicI32, Ordering};
 
 use error::Error;
 use ljr::prelude::*;
 
 use crate::de::try_to_value_ref;
 
+static MAX_DEPTH: AtomicI32 = AtomicI32::new(128);
+
 #[derive(Debug)]
 pub struct Api {}
 
 #[user_data]
 impl Api {
+    pub fn set_max_depth(depth: i32) {
+        MAX_DEPTH.store(depth, Ordering::Relaxed);
+    }
+
     pub fn stringify(value: &StackValue) -> Result<String, Error> {
-        let mut buf = String::new();
-        let mut visited = HashSet::new();
-        se::serialize_value(&mut buf, value, &mut visited)?;
+        let max_depth = MAX_DEPTH.load(Ordering::Relaxed);
+        let mut buf = String::with_capacity(128);
+        se::serialize_value(&mut buf, value, max_depth)?;
         Ok(buf)
     }
 

@@ -1,7 +1,7 @@
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("cryclic table in json")]
-    CyclicValue,
+    #[error("max depth exceeded")]
+    MaxDepthExceeded,
     #[error("invalid json key")]
     InvalidKey,
     #[error("unsupported type for json")]

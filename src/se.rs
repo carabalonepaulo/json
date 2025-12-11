@@ -1,14 +1,8 @@
-use std::collections::HashSet;
-
 use ljr::{prelude::*, value::Kind};
 
 use crate::error::Error;
 
-pub fn serialize_value(
-    buf: &mut String,
-    value: &StackValue,
-    visited: &mut HashSet<usize>,
-) -> Result<(), Error> {
+pub fn serialize_value(buf: &mut String, value: &StackValue, depth: i32) -> Result<(), Error> {
     match value.kind() {
         Kind::Nil => {
             buf.push_str("null");
@@ -33,44 +27,26 @@ pub fn serialize_value(
             });
             Ok(())
         }
-        Kind::Table => value.with_table(|t| serialize_table(buf, t, visited)),
+        Kind::Table => value.with_table(|t| serialize_table(buf, t, depth)),
         _ => Err(Error::UnsupportedValue),
     }
 }
 
-pub fn serialize_table(
-    buf: &mut String,
-    table: &StackTable,
-    visited: &mut HashSet<usize>,
-) -> Result<(), Error> {
-    if visited.contains(&table.id()) {
-        return Err(Error::CyclicValue);
+pub fn serialize_table(buf: &mut String, table: &StackTable, mut depth: i32) -> Result<(), Error> {
+    if depth <= 0 {
+        return Err(Error::MaxDepthExceeded);
     }
-    visited.insert(table.id());
+    depth -= 1;
 
     let len = table.len();
     if len > 0 {
-        serialize_array(buf, table, visited)
+        serialize_array(buf, table, depth)
     } else {
-        let is_array = table
-            .try_with(|t| t.try_with_metatable(|mt| mt.try_with(|t| t.try_get("__is_array"))?)?)
-            .flatten()
-            .unwrap_or(false);
-
-        if is_array {
-            buf.push_str("[]");
-            Ok(())
-        } else {
-            serialize_object(buf, table, visited)
-        }
+        serialize_object(buf, table, depth)
     }
 }
 
-pub fn serialize_array(
-    buf: &mut String,
-    table: &StackTable,
-    visited: &mut HashSet<usize>,
-) -> Result<(), Error> {
+pub fn serialize_array(buf: &mut String, table: &StackTable, depth: i32) -> Result<(), Error> {
     buf.push('[');
 
     let mut err: Option<Error> = None;
@@ -78,7 +54,7 @@ pub fn serialize_array(
         if *i > 1 {
             buf.push(',');
         }
-        match serialize_value(buf, v, visited) {
+        match serialize_value(buf, v, depth) {
             Ok(_) => true,
             Err(e) => {
                 err = Some(e);
@@ -95,11 +71,7 @@ pub fn serialize_array(
     Ok(())
 }
 
-pub fn serialize_object(
-    buf: &mut String,
-    table: &StackTable,
-    visited: &mut HashSet<usize>,
-) -> Result<(), Error> {
+pub fn serialize_object(buf: &mut String, table: &StackTable, depth: i32) -> Result<(), Error> {
     buf.push('{');
 
     let mut err: Option<Error> = None;
@@ -114,7 +86,7 @@ pub fn serialize_object(
         buf.extend(json_escape::escape_str(k.as_str()));
         buf.push('"');
         buf.push(':');
-        match serialize_value(buf, v, visited) {
+        match serialize_value(buf, v, depth) {
             Ok(_) => true,
             Err(e) => {
                 err = Some(e);
