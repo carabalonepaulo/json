@@ -2,10 +2,6 @@ local bench = {}
 
 local clock = os.clock
 
-local function fmt(v)
-  return string.format("%.4f ms", v * 1000)
-end
-
 local function fmt_sec(v)
   return string.format("%.3fs", v)
 end

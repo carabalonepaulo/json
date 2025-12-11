@@ -20,11 +20,11 @@ pub fn serialize_value(buf: &mut String, value: &StackValue, depth: i32) -> Resu
             Ok(())
         }
         Kind::String => {
-            value.with_str(|s| {
+            value.try_with_str(|s| {
                 buf.push('"');
                 buf.extend(json_escape::escape_str(s.as_str()));
                 buf.push('"');
-            });
+            })?;
             Ok(())
         }
         Kind::Table => value.with_table(|t| serialize_table(buf, t, depth)),

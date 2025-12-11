@@ -1,4 +1,4 @@
-package.cpath = package.cpath .. ';' .. './test/?.dll'
+package.cpath = package.cpath .. ';' .. './benches/?.dll'
 local json = require 'json'
 
 local function make_big_obj(n)
@@ -36,13 +36,13 @@ local dummy_obj = make_big_obj(growth)
 local dummy_array = make_big_array(growth)
 local dummy_empty = make_big_array_with_empty_tables(growth)
 
-local rxi_json = require 'test.rxi'
-local dkjson = require 'test.dkjson'
-local tyler_json = require 'test.tyler'
+local rxi_json = require 'benches.rxi'
+local dkjson = require 'benches.dkjson'
+local tyler_json = require 'benches.tyler'
 local mine_json = require 'json'
 local cjson = require 'cjson'
 
-local bench = require 'test.bench'
+local bench = require 'benches.bench'
 bench.compare('object', {
   rxi = function()
     rxi_json.encode(dummy_obj)
