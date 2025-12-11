@@ -12,4 +12,6 @@ pub enum Error {
     Ljr(#[from] ljr::error::Error),
     #[error("int out of range")]
     IntOutOfRange,
+    #[error("non-finite float value ({0}) is not valid json")]
+    NonFiniteNumber(f64),
 }

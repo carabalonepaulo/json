@@ -1,6 +1,6 @@
 use ljr::{prelude::*, value::Kind};
 
-use crate::error::Error;
+use crate::{MAX_SAFE_INT_AS_F64, error::Error};
 
 pub fn serialize_value(buf: &mut String, value: &StackValue, depth: i32) -> Result<(), Error> {
     match value.kind() {
@@ -13,10 +13,20 @@ pub fn serialize_value(buf: &mut String, value: &StackValue, depth: i32) -> Resu
             Ok(())
         }
         Kind::Number => {
-            value.with_number(|n| {
-                let mut buffer = ryu::Buffer::new();
-                buf.push_str(buffer.format(n));
-            });
+            value.try_with_number(|n| {
+                if !n.is_finite() {
+                    Err(Error::NonFiniteNumber(n))
+                } else {
+                    if n.fract() == 0.0 && n >= -MAX_SAFE_INT_AS_F64 && n <= MAX_SAFE_INT_AS_F64 {
+                        let mut buffer = itoa::Buffer::new();
+                        buf.push_str(buffer.format(n as i64));
+                    } else {
+                        let mut buffer = ryu::Buffer::new();
+                        buf.push_str(buffer.format(n));
+                    }
+                    Ok(())
+                }
+            })??;
             Ok(())
         }
         Kind::String => {

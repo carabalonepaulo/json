@@ -122,6 +122,7 @@ name = "json"
 version = "0.1.0"
 dependencies = [
  "halfbrown",
+ "itoa",
  "json-escape",
  "ljr",
  "ryu",

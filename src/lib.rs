@@ -11,6 +11,9 @@ use ljr::prelude::*;
 
 use crate::de::try_to_value_ref;
 
+const MAX_SAFE_INT: i64 = 9_007_199_254_740_991;
+const MAX_SAFE_INT_AS_F64: f64 = 9_007_199_254_740_991.0;
+
 static MAX_DEPTH: AtomicI32 = AtomicI32::new(128);
 
 #[derive(Debug)]

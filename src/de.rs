@@ -1,11 +1,9 @@
 use std::borrow::Cow;
 
-use crate::Error;
+use crate::{Error, MAX_SAFE_INT};
 use halfbrown::SizedHashMap;
 use ljr::{Nil, lua::Lua, prelude::TableView, to_lua::ToLua, value::ValueRef};
 use simd_json::{BorrowedValue, StaticNode, borrowed::Value};
-
-const MAX_SAFE_INT: i64 = 9_007_199_254_740_991;
 
 #[inline(always)]
 fn push_vec(t: &mut TableView, vec: &Vec<Value<'_>>) -> Result<(), Error> {
